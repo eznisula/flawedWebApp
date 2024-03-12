@@ -7,15 +7,15 @@ Task is to create a web application that has at least five different flaws from 
 The flawed web application is built using Django as instructed and the website base/functionality is built according to [a tutorial](https://docs.djangoproject.com/en/4.2/intro/tutorial01/).
 
 Python version used:
-'''
+```
 $ python --version
 Python 3.11.8
-'''
+```
 
 Django version used:
-'''
+```
 $ python -m django --version
 4.2.10
-'''
+```
 
 There will be a written report on the flaws/fixes.
