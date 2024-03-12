@@ -1,0 +1,8 @@
+li a {
+    color: green;
+}
+
+body {
+    /* https://en.wikipedia.org/wiki/PNG */
+    background: white url("images/background.png") no-repeat;
+}
