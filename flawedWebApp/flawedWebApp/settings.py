@@ -50,8 +50,6 @@ MIDDLEWARE = [
     'flawedWebApp.csrf.CsrfViewMiddleware'
 ]
 
-SKIP_CSRF_CHECK = True
-
 ROOT_URLCONF = 'flawedWebApp.urls'
 
 TEMPLATES = [
@@ -124,3 +122,7 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# CSB Flaw switches (False means a flaw is present)
+FIX_CSRF_CHECK = False
+FIX_VOTE_RACE_CONDITION = False

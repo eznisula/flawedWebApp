@@ -352,7 +352,7 @@ class CsrfViewMiddleware(MiddlewareMixin):
         return f"CSRF token from {token_source} {reason}."
 
     def _check_token(self, request):
-        if settings.SKIP_CSRF_CHECK:
+        if not settings.FIX_CSRF_CHECK:
             return
         # Access csrf_secret via self._get_secret() as rotate_token() may have
         # been called by an authentication middleware during the
