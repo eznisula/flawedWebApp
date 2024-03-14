@@ -5,6 +5,7 @@ from django.views import generic
 from django.utils import timezone
 from django.conf import settings
 from django.db.models import F
+from django.db import connection
 
 from .models import Choice, Question
 
@@ -38,7 +39,20 @@ class ResultsView(generic.DetailView):
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     try:
-        selected_choice = question.choice_set.get(pk=request.POST["choice"])
+        other = request.POST["other"]
+        if other:
+            if settings.FIX_SQL_INJECTION:
+                # Safe way of dealing with the "other" SQL input
+                selected_choice = question.choice_set.create(choice_text=other)
+            else:
+                # This is the dangerous way
+                with connection.cursor() as cursor:
+                    cursor.executescript(
+                        "INSERT INTO polls_choice (choice_text, votes, question_id) \
+                              VALUES ('{}', '0', '{}')".format(other, question.id))
+                selected_choice = question.choice_set.get(choice_text=other)
+        else:
+            selected_choice = question.choice_set.get(pk=request.POST["choice"])
     except (KeyError, Choice.DoesNotExist):
         # Redisplay the question voting form.
         return render(

@@ -126,3 +126,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # CSB Flaw switches (False means a flaw is present)
 FIX_CSRF_CHECK = False
 FIX_VOTE_RACE_CONDITION = False
+FIX_SQL_INJECTION = False
