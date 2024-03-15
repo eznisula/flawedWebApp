@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
   </head>
   <body>
+    {% csrf_token %}
     <h1>{{ question.question_text }}</h1>
 
     <ul>
@@ -11,7 +12,22 @@
         <li>{{ choice.choice_text }} -- {{ choice.votes }} vote{{ choice.votes|pluralize }}</li>
     {% endfor %}
     </ul>
+    <!--
+    <form name="form1" action="/2/vote/" method="POST">
+        <input type="hidden" name="Host" value="127.0.0.1:8000" />
+        <input type="hidden" name="Content-Length" value="100" />
+        <input type="hidden" name="Origin" value="http://127.0.0.1:8000" />
+        <input type="hidden" name="Content-Type" value="application/x-www-form-urlencoded" />
+        <input type="hidden" name="Referer" value="http://127.0.0.1:8000/2/" />
+        <input type="hidden" name="Cookie" value="a" />
+        <input type="hidden" name="Connection" value="close" />
+        <input type="hidden" name="csrfmiddlewaretoken" value="a" />
+        <input type="hidden" name="choice" value="6" />
+        <input type="hidden" name="other" value="" />
+    </form>
     
+    <a href="#" onclick="document.form1.submit()">Click me</a>
+    -->
     <a href="{% url 'polls:detail' question.id %}">Vote again?</a>
   </body>
 </html>

@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.conf import settings
 from django.db.models import F
 from django.db import connection
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import Choice, Question
 
@@ -36,6 +37,8 @@ class ResultsView(generic.DetailView):
     template_name = "polls/results.html"
 
 
+# Comment/uncomment this and set settings.FIX_CSRF_CHECK = True to test flaw
+#@csrf_exempt
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     try:
