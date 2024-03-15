@@ -155,8 +155,6 @@ Fix for CSRF attack can be done by removing a Python function decorator
 from the function handling the voting mechanism. This decorator marks a view as being exempt from the protection provided by the CSRF middleware included by default in Django. [6] This feature could be used in testing/development phase of the web application and could be then accidentally left there. Django also provides “csrf_token” -tags that are to be used in POST-forms. These tags make Django generate a token on the server-side while rendering the page and does a  cross-check for this token on incoming requests.
 
 
-References:
-
 [1]: https://github.com/rapid7/metasploit-framework/blob/master/data/wordlists/common_roots.txt
 
 [2]: https://docs.djangoproject.com/en/4.2/intro/tutorial01/#creating-a-project
