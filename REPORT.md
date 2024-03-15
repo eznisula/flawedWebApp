@@ -17,17 +17,20 @@ The first flaw relates to permitting brute-force attack towards admin login pane
 I disabled the CSRF check to exploit the flaw. Using a simple network login cracker Hydra, I tried to perform a dictionary attack against the admin login (Fig. 1) so that both username and password are to be guessed.
 
 ![alt text](images/flaw1_login.png)
-Figure 1. Web application admin login.
+
+_Figure 1. Web application admin login._
 
 With CSRF token check enabled, Hydra fails to attack the web application without a suitable token. Figure 2 below illustrates the failure.
 
 ![alt text](images/flaw1_fail.png)
-Figure 2. On top the output of Django web application server and below the failed brute-force attempt using Hydra. The two input lists (usernames.txt and passwords.txt) are shortened versions of Metasploit’s “common_roots.txt” -wordlist [1] containing the correct credentials as well as 70 wrong ones just for sake of example.
+
+_Figure 2. On top the output of Django web application server and below the failed brute-force attempt using Hydra. The two input lists (usernames.txt and passwords.txt) are shortened versions of Metasploit’s "common roots.txt" -wordlist [1] containing the correct credentials as well as 70 wrong ones just for sake of example._
 
 Disabling the CSRF token check, I am able to extract the correct credentials using the same approach as shown in figure 3.
 
 ![alt text](images/flaw1_attack.png)
-Figure 3. Successful attack without the CSRF token check enabled gives the admin credentials.
+
+_Figure 3. Successful attack without the CSRF token check enabled gives the admin credentials._
 
 To fix the flaw in this case, one needs to set
 
@@ -49,7 +52,8 @@ was randomly generated when the Django project was started. As the key is availa
 Fixing the vulnerability requires a fresh secret key and storing it so that it is not publicly available. I generated a new secret key using Python shell (Figure 4).
 
 ![alt text](images/flaw5_new_secret_key.png)
-Figure 4. Creating a new secret key.
+
+_Figure 4. Creating a new secret key._
 
 The output was a new key which I added as a key-value pair in a new file  flawedWebApp/.env, which should be not published on version control (but it is included in version control here for example). The new private secret key is read from this file in settings.py and so the key remains only on the server.
 
@@ -63,32 +67,38 @@ Third flaw is a race condition in the web application’s voting mechanism, whic
 To demonstrate the flaw, one needs to send multiple vote requests simultaneously. This can be done e.g. using BurpSuite’s Repeater functionality. Suppose votes are cast as depicted in figure 5 below.
 
 ![alt text](images/flaw2_start.png)
-Figure 5. Votes before sending requests using BurpSuite.
+
+_Figure 5. Votes before sending requests using BurpSuite._
 
 I captured the voting request using BurpSuite Target and send just one request to see voting working (Figure 6).
 
 ![alt text](images/flaw2_one_request.png)
-Figure 6. BurpSuite Repeater tab containing the voting request. Note the orange “Send” button on top-left corner indicating only one request being sent.
+
+_Figure 6. BurpSuite Repeater tab containing the voting request. Note the orange “Send” button on top-left corner indicating only one request being sent._
 
 After sending the request, everything goes as expected, as shown in figure 7 below.
 
 ![alt text](images/flaw2_after_one_request.png)
-Figure 7. Votes after one request sent.
+
+_Figure 7. Votes after one request sent._
 
 Next, to see the race condition flaw in action, a group of 10 similar requests were sent parallel (Figure 8).
 
 ![alt text](images/flaw2_ten_requests_parallel.png)
-Figure 8. Sending 10 voting requests in parallel. Note the orange “Send group (parallel)” button on the top-left corner again.
+
+_Figure 8. Sending 10 voting requests in parallel. Note the orange “Send group (parallel)” button on the top-left corner again._
 
 Now the results should display all 10 additional votes, but only one is shown (Figure 9).
 
 ![alt text](images/flaw2_after_parallel_requests.png)
-Figure 9. Ten simultaneous requests result in only one being registered. Running the test multiple times, sometimes two votes got in.
+
+_Figure 9. Ten simultaneous requests result in only one being registered. Running the test multiple times, sometimes two votes got in._
 
 Applying the fix for the flaw, the same parallel request results in all 10 getting registered (Figure 10).
 
 ![alt text](images/flaw2_fixed.png)
-Figure 10. Fixing the race condition results in votes being registered correctly. Note that here there are 11 votes more than in figure 8. This is because I had to apply the fix, restart the server, and record the voting request again, which added one vote more.
+
+_Figure 10. Fixing the race condition results in votes being registered correctly. Note that here there are 11 votes more than in figure 8. This is because I had to apply the fix, restart the server, and record the voting request again, which added one vote more._
 
 Fixing the race condition flaw is simple, as Django provides functionality dealing with it. The fix uses a class called
 
@@ -104,12 +114,14 @@ The [location](https://github.com/eznisula/flawedWebApp/blob/9fd1eb97cfcca1f2bf3
 Fourth flaw is an SQL injection vulnerability. In the voting functionality, there is now a “other” option for those who aren’t satisfied with the options given by the administrator. Figure 11 below illustrates the options.
 
 ![alt text](images/flaw3_options.png)
-Figure 11. User may add another option to vote by filling the “Other” field and pressing vote.
+
+_Figure 11. User may add another option to vote by filling the “Other” field and pressing vote._
 
 The attacker wants to break everything that is of value and thus targets the already cast votes. Now let’s assume a situation, where there are already votes recorded in the database (Figure 12).
 
 ![alt text](images/flaw3_cast_votes.png)
-Figure 12. Votes already recorded in the database.
+
+_Figure 12. Votes already recorded in the database._
 
 The SQL injection string can be inserted into the “Other” field and that will be executed by the database engine. The web application dangerously constructs raw SQL queries and uses them as they are without sanitizing. The string to input is the following:
 
@@ -118,7 +130,8 @@ The SQL injection string can be inserted into the “Other” field and that wil
 Constructing such a string requires some Django knowledge and deduction. Going though debug traces which Django spits out when providing erroneous inputs in this field (by default Django has debug traces enabled for development environment), one can assume that there are “polls” and “choices” which in turn relate to “votes”. Knowing that Django automatically generates table names by combining name of the app (polls) and the model (choice) [4], one still needs to figure out the structure of the intended SQL command which includes the option text (vuln), option votes (0), and question number (2, shown in URL as well). These can be hard to figure out, but not impossible for sure. Lastly, the attacker gives “votes” new value “0”. Submitting this SQL injection string results in zeroed votes (Figure 13).
 
 ![alt text](images/flaw3_result.png)
-Figure 13. Registered votes are zeroed due to SQL injection attack.
+
+_Figure 13. Registered votes are zeroed due to SQL injection attack._
 
 Vulnerability mitigation is done by using Django’s inbuilt mechanism for creating a new items in a database. Using “Querysets”, one is protected from SQL injection as the queries are constructed using query parametrization, instead of plain raw SQL. Django’s SQL injection protection defines SQL code separately from query’s parameters and escapes user-provided and unsafe parameters. [5] This is easy for the programmer, as the database driver does all the work after a single line of code.
 
@@ -130,7 +143,8 @@ Fifth flaw is a CSRF vulnerability. Here, the voting mechanism of the web applic
 
 
 ![alt text](images/flaw4_form.png)
-Figure 14. Clicking the “Regular button” sends a POST request that increments votes for option “Not much”.
+
+_Figure 14. Clicking the “Regular button” sends a POST request that increments votes for option “Not much”._
 
 The POST request was recorded using BurpSuite and the data was hid behind the button in results.html.
 
