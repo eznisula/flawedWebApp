@@ -98,7 +98,7 @@ Applying the fix for the flaw, the same parallel request results in all 10 getti
 
 ![alt text](images/flaw2_fixed.png)
 
-_Figure 10. Fixing the race condition results in votes being registered correctly. Note that here there are 11 votes more than in figure 8. This is because I had to apply the fix, restart the server, and record the voting request again, which added one vote more._
+_Figure 10. Fixing the race condition results in votes being registered correctly. Note that here there are 11 votes more than in figure 9. This is because I had to apply the fix, restart the server, and record the voting request again, which added one vote more._
 
 Fixing the race condition flaw is simple, as Django provides functionality dealing with it. The fix uses a class called
 
@@ -156,10 +156,17 @@ from the function handling the voting mechanism. This decorator marks a view as 
 
 
 References:
+
 [1]: https://github.com/rapid7/metasploit-framework/blob/master/data/wordlists/common_roots.txt
+
 [2]: https://docs.djangoproject.com/en/4.2/intro/tutorial01/#creating-a-project
+
 [3]: https://docs.djangoproject.com/en/4.2/ref/models/expressions/#f-expressions
+
 [4]: https://docs.djangoproject.com/en/4.2/intro/tutorial02/#activating-models
+
 [5]: https://docs.djangoproject.com/en/4.2/topics/security/#sql-injection-protection
+
 [6]: https://docs.djangoproject.com/en/4.2/ref/csrf/#django.views.decorators.csrf.csrf_exempt
+
 [7]: https://docs.djangoproject.com/en/4.2/ref/settings/#secret-key
